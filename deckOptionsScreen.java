@@ -41,9 +41,7 @@ public class deckOptionsScreen extends JPanel {
             int result = chooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
-                // Use filename (without extension) as deck name
                 String deckName = file.getName().replaceFirst("\\.txt$", "");
-                // If a deck with that name already exists, ask user
                 if (deckManager.decks.contains(deckName)) {
                     int overwrite = JOptionPane.showConfirmDialog(null,
                             "A deck named \"" + deckName + "\" already exists. Overwrite it?",
@@ -53,29 +51,27 @@ public class deckOptionsScreen extends JPanel {
                 }
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     deckManager.addDeck(deckName);
+                    // Read entire file and split on | to get individual terms
+                    StringBuilder sb = new StringBuilder();
                     String line;
-                    int lineNum = 0;
-                    int skipped = 0;
                     while ((line = reader.readLine()) != null) {
-                        lineNum++;
-                        line = line.trim();
-                        if (line.isEmpty()) continue; // skip blank lines
-                        int dash = line.indexOf(" - ");
-                        if (dash == -1) {
-                            skipped++;
-                            continue; // skip malformed lines
-                        }
-                        String question = line.substring(0, dash).trim();
-                        String answer   = line.substring(dash + 3).trim();
-                        if (!question.isEmpty() && !answer.isEmpty()) {
-                            deckManager.addTerm(deckName, question, answer);
-                        } else {
-                            skipped++;
-                        }
+                        sb.append(line);
+                    }
+                    String[] entries = sb.toString().split("\\|");
+                    int skipped = 0;
+                    for (String entry : entries) {
+                        entry = entry.trim();
+                        if (entry.isEmpty()) continue;
+                        String[] parts = entry.split("~", 2);
+                        if (parts.length != 2) { skipped++; continue; }
+                        String question = parts[0].trim();
+                        String answer   = parts[1].trim();
+                        if (question.isEmpty() || answer.isEmpty()) { skipped++; continue; }
+                        deckManager.addTerm(deckName, question, answer);
                     }
                     String msg = "Imported \"" + deckName + "\" with "
                             + deckManager.getTerms(deckName).size() + " terms.";
-                    if (skipped > 0) msg += "\n(" + skipped + " malformed lines skipped)";
+                    if (skipped > 0) msg += "\n(" + skipped + " malformed entries skipped)";
                     JOptionPane.showMessageDialog(null, msg);
                     refreshList();
                 } catch (IOException ex) {
@@ -104,14 +100,13 @@ public class deckOptionsScreen extends JPanel {
             int result = chooser.showSaveDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
-                // Ensure .txt extension
                 if (!file.getName().toLowerCase().endsWith(".txt")) {
                     file = new File(file.getAbsolutePath() + ".txt");
                 }
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                    for (String[] term : terms) {
-                        writer.write(term[0] + " - " + term[1]);
-                        writer.newLine();
+                    for (int i = 0; i < terms.size(); i++) {
+                        writer.write(terms.get(i)[0] + "~" + terms.get(i)[1]);
+                        if (i < terms.size() - 1) writer.write("|");
                     }
                     JOptionPane.showMessageDialog(null,
                             "Exported \"" + selectedDeck + "\" to:\n" + file.getAbsolutePath());
