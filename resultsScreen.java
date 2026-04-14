@@ -54,7 +54,7 @@ public class resultsScreen extends JPanel {
             public void componentShown(ComponentEvent e) {
                 int score = statsManager.lastScore;
                 int total = statsManager.lastTotal;
-                int pct   = total == 0 ? 0 : (int) Math.round((score * 100.0) / total);
+                int pct   = total == 0 ? 0 : (int) (score * 100.0) / total;
                 scoreLabel.setText("You got " + pct + "%");
                 detailLabel.setText(score + " correct out of " + total);
             }

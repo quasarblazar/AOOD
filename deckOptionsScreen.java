@@ -11,6 +11,8 @@ public class deckOptionsScreen extends JPanel {
     static String selectedDeck = null;
     private JPanel deckList = new JPanel();
 
+    private static final File HOME = new File(System.getProperty("user.home"));
+
     public deckOptionsScreen() {
         setLayout(new BorderLayout());
         setBackground(new Color(240, 245, 255));
@@ -32,10 +34,10 @@ public class deckOptionsScreen extends JPanel {
         bottom.setBorder(BorderFactory.createEmptyBorder(0, 40, 30, 40));
         bottom.add(EduQuiz.navButton("Create New", "create"));
 
-        // --- Import ---
+        // import
         JButton importBtn = EduQuiz.styledButton("Import New");
         importBtn.addActionListener(e -> {
-            JFileChooser chooser = new JFileChooser();
+            JFileChooser chooser = new JFileChooser(HOME);
             chooser.setDialogTitle("Import Deck");
             chooser.setFileFilter(new FileNameExtensionFilter("Text Files (*.txt)", "txt"));
             int result = chooser.showOpenDialog(null);
@@ -44,14 +46,13 @@ public class deckOptionsScreen extends JPanel {
                 String deckName = file.getName().replaceFirst("\\.txt$", "");
                 if (deckManager.decks.contains(deckName)) {
                     int overwrite = JOptionPane.showConfirmDialog(null,
-                            "A deck named \"" + deckName + "\" already exists. Overwrite it?",
+                            "A deck named \"" + deckName + "\" already exists.",
                             "Deck Exists", JOptionPane.YES_NO_OPTION);
                     if (overwrite != JOptionPane.YES_OPTION) return;
                     deckManager.removeDeck(deckName);
                 }
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     deckManager.addDeck(deckName);
-                    // Read entire file and split on | to get individual terms
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -71,7 +72,7 @@ public class deckOptionsScreen extends JPanel {
                     }
                     String msg = "Imported \"" + deckName + "\" with "
                             + deckManager.getTerms(deckName).size() + " terms.";
-                    if (skipped > 0) msg += "\n(" + skipped + " malformed entries skipped)";
+                    //if (skipped > 0) msg += "\n(" + skipped + " malformed entries skipped)";
                     JOptionPane.showMessageDialog(null, msg);
                     refreshList();
                 } catch (IOException ex) {
@@ -85,18 +86,18 @@ public class deckOptionsScreen extends JPanel {
         JButton exportBtn = EduQuiz.styledButton("Export");
         exportBtn.addActionListener(e -> {
             if (selectedDeck == null) {
-                JOptionPane.showMessageDialog(null, "Please select a deck first.");
+                JOptionPane.showMessageDialog(null, "Select a deck first.");
                 return;
             }
             ArrayList<String[]> terms = deckManager.getTerms(selectedDeck);
             if (terms.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "This deck has no terms to export.");
+                JOptionPane.showMessageDialog(null, "This deck has no terms.");
                 return;
             }
-            JFileChooser chooser = new JFileChooser();
+            JFileChooser chooser = new JFileChooser(HOME);
             chooser.setDialogTitle("Export Deck");
             chooser.setFileFilter(new FileNameExtensionFilter("Text Files (*.txt)", "txt"));
-            chooser.setSelectedFile(new File(selectedDeck + ".txt"));
+            chooser.setSelectedFile(new File(HOME, selectedDeck + ".txt"));
             int result = chooser.showSaveDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();

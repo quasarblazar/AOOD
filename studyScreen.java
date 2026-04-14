@@ -33,7 +33,7 @@ public class studyScreen extends JPanel {
             if (selectedDeck == null) {
                 JOptionPane.showMessageDialog(null, "Please select a deck first.");
             } else if (deckManager.getTerms(selectedDeck).isEmpty()) {
-                JOptionPane.showMessageDialog(null, "No questions in this deck. Add some terms first.");
+                JOptionPane.showMessageDialog(null, "No questions in this deck.");
             } else {
                 EduQuiz.show("quiz");
             }
@@ -53,8 +53,8 @@ public class studyScreen extends JPanel {
         deckList.removeAll();
         selectedDeck = null;
         if (deckManager.decks.isEmpty()) {
-            JLabel empty = new JLabel("No quizzes available. Create a deck first.");
-            empty.setFont(new Font("Arial", Font.ITALIC, 22));
+            JLabel empty = new JLabel("No Decks");
+            empty.setFont(new Font("Arial", Font.PLAIN, 22));
             empty.setForeground(new Color(150, 150, 150));
             empty.setAlignmentX(CENTER_ALIGNMENT);
             empty.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));

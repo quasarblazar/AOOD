@@ -55,14 +55,28 @@ public class EduQuiz {
     }
 
     static JPanel topBar(String title, String backLabel, String backDest) {
-        JPanel bar = new JPanel(new BorderLayout());
-        bar.setBackground(new Color(240, 245, 255));
-        bar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        bar.add(navButton(backLabel, backDest), BorderLayout.WEST);
-        bar.add(titleLabel(title), BorderLayout.CENTER);
-        JButton x = styledButton("X");
-        x.addActionListener(e -> EduQuiz.show("mainMenu"));
-        bar.add(x, BorderLayout.EAST);
-        return bar;
+    JPanel bar = new JPanel(new BorderLayout());
+    bar.setBackground(new Color(240, 245, 255));
+    bar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    left.setOpaque(false);
+    left.add(navButton(backLabel, backDest));
+
+    JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+    right.setOpaque(false);
+    right.add(styledButton("X"));
+
+    Dimension d = new Dimension(
+        Math.max(left.getPreferredSize().width, right.getPreferredSize().width),
+        left.getPreferredSize().height
+    );
+    left.setPreferredSize(d);
+    right.setPreferredSize(d);
+
+    bar.add(left, BorderLayout.WEST);
+    bar.add(titleLabel(title), BorderLayout.CENTER);
+    bar.add(right, BorderLayout.EAST);
+    return bar;
     }
 }
